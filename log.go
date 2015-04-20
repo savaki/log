@@ -32,22 +32,33 @@ const (
 func init() {
 	DefaultLogger = Logger{
 		underlying: gklog.NewJSONLogger(os.Stdout),
+		level:      Info,
 	}
 }
 
 type Logger struct {
 	underlying gklog.Logger
+	level      LogLevel
 }
 
 func (l Logger) With(keyvals ...interface{}) Logger {
 	return Logger{
 		underlying: gklog.With(l.underlying, keyvals...),
+		level:      l.level,
 	}
 }
 
 func (l Logger) WithMethod(name string) Logger {
 	return Logger{
 		underlying: gklog.With(l.underlying, MethodKey, name),
+		level:      l.level,
+	}
+}
+
+func (l Logger) WithLogLevel(level LogLevel) Logger {
+	return Logger{
+		underlying: l.underlying,
+		level:      level,
 	}
 }
 
@@ -80,8 +91,10 @@ func (l Logger) Errorf(format string, args ...interface{}) {
 }
 
 func (l Logger) printf(level LogLevel, format string, args ...interface{}) {
-	message := fmt.Sprintf(format, args...)
-	l.underlying.Log(TimeKey, time.Now().Format(time.RFC3339), LevelKey, level.String(), MessageKey, message)
+	if l.level <= level {
+		message := fmt.Sprintf(format, args...)
+		l.underlying.Log(TimeKey, time.Now().Format(time.RFC3339), LevelKey, level.String(), MessageKey, message)
+	}
 }
 
 // -----------------------------------------------------------------------------
