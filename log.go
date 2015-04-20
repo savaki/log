@@ -62,12 +62,17 @@ func (l Logger) WithLogLevel(level LogLevel) Logger {
 	}
 }
 
-func (l Logger) Println(format string) {
-	l.Infof(format)
-}
-
 func (l Logger) Printf(format string, args ...interface{}) {
 	l.Infof(format, args...)
+}
+
+func (l Logger) Println(args ...interface{}) {
+	l.println(Info, args...)
+}
+
+func (l Logger) Fatalln(args ...interface{}) {
+	l.println(Error, args...)
+	os.Exit(1)
 }
 
 func (l Logger) Tracef(format string, args ...interface{}) {
@@ -88,6 +93,13 @@ func (l Logger) Warnf(format string, args ...interface{}) {
 
 func (l Logger) Errorf(format string, args ...interface{}) {
 	l.printf(Error, format, args...)
+}
+
+func (l Logger) println(level LogLevel, args ...interface{}) {
+	if l.level <= level {
+		message := fmt.Sprintln(args...)
+		l.printf(level, message)
+	}
 }
 
 func (l Logger) printf(level LogLevel, format string, args ...interface{}) {
@@ -111,10 +123,6 @@ func Printf(format string, args ...interface{}) {
 	DefaultLogger.Printf(format, args...)
 }
 
-func Println(format string) {
-	DefaultLogger.Println(format)
-}
-
 func Tracef(format string, args ...interface{}) {
 	DefaultLogger.Tracef(format, args...)
 }
@@ -133,4 +141,12 @@ func Warnf(format string, args ...interface{}) {
 
 func Errorf(format string, args ...interface{}) {
 	DefaultLogger.Errorf(format, args...)
+}
+
+func Println(args ...interface{}) {
+	DefaultLogger.Println(args...)
+}
+
+func Fatalln(args ...interface{}) {
+	DefaultLogger.Fatalln(args...)
 }
