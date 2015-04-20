@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	gklog "github.com/peterbourgon/gokit/log"
@@ -98,7 +99,7 @@ func (l Logger) Errorf(format string, args ...interface{}) {
 func (l Logger) println(level LogLevel, args ...interface{}) {
 	if l.level <= level {
 		message := fmt.Sprintln(args...)
-		l.printf(level, message)
+		l.printf(level, strings.TrimRight(message))
 	}
 }
 
